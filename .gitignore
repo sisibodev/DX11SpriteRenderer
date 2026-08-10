@@ -1,0 +1,35 @@
+# ── Visual Studio ──────────────────────────────
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.opendb
+
+# ── 빌드 산출물 ────────────────────────────────
+[Dd]ebug/
+[Rr]elease/
+[Xx]64/
+[Xx]86/
+[Bb]in/
+[Oo]bj/
+ipch/
+
+# ── 컴파일 / 링크 중간 파일 ────────────────────
+*.obj
+*.pch
+*.ipch
+*.pdb
+*.idb
+*.ilk
+*.exp
+*.tlog
+*.log
+*.aps
+
+# ── OS ─────────────────────────────────────────
+Thumbs.db
+Desktop.ini
+.DS_Store

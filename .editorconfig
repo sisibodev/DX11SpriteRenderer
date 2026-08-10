@@ -1,0 +1,25 @@
+# EditorConfig — DX11SpriteRenderer
+#
+# 새로 만드는 파일도 자동으로 UTF-8로 저장되게 강제한다.
+# C/C++는 BOM을 포함시킨다: MSVC는 BOM이 없으면 파일을 시스템 코드페이지
+# (한국어 Windows = CP949)로 해석해서 한글 주석이 깨지고 C4819 경고가 발생하기 때문이다.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C/C++ 소스와 HLSL 셰이더 — BOM 필요 (위 주석 참고)
+[*.{c,cpp,h,hpp,hlsl}]
+charset = utf-8-bom
+indent_style = tab
+indent_size = 4
+
+# 문서·설정 파일 — BOM 없이 (일부 JSON/YAML 파서가 BOM을 처리 못 함)
+[*.{md,json,yml,yaml,xml}]
+charset = utf-8
+indent_style = space
+indent_size = 2
