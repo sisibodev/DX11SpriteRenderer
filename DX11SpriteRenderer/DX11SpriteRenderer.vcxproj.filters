@@ -14,6 +14,9 @@
     <Filter Include="src\render">
       <UniqueIdentifier>{5a9115a6-2dc8-40c6-9000-361949b525d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\shaders">
+      <UniqueIdentifier>{9095b806-6b48-4a3f-a97e-8a866e7cac4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Window.cpp">
@@ -25,13 +28,36 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\Shader.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\App.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Window.h">
       <Filter>src\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\render\GraphicsDeviece.h">
+    <ClInclude Include="src\render\GraphicsDevice.h">
       <Filter>src\render</Filter>
     </ClInclude>
+    <ClInclude Include="src\render\Shader.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\Vertex.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\App.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\shaders\Sprite.vs.hlsl">
+      <Filter>src\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="src\shaders\Sprite.ps.hlsl">
+      <Filter>src\shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

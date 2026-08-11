@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include <windows.h>
-#include <cstdio>
 
 class Window
 {
 public:
-	bool Create(const wchar_t* title, int widht, int height);
+	bool Create(const wchar_t* title, int width, int height);
 	void PumpMessages();
 	bool IsRunning() const { return m_running; }
 

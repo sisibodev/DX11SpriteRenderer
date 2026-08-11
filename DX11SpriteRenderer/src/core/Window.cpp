@@ -1,4 +1,66 @@
 ﻿#include "core/Window.h"
+#include <cstdio>
+
+bool Window::Create(const wchar_t* title, int width, int height)
+{
+	HINSTANCE hInst = GetModuleHandle(nullptr);
+	m_width = width;
+	m_height = height;
+
+	//창의 기본 셋팅 정의
+	WNDCLASSEX wc = {};
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = WndProcStatic;
+	wc.hInstance = hInst;
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wc.lpszClassName = L"DX11SpriteRendererClass";
+
+	if (!RegisterClassEx(&wc))
+	{
+		printf("RegisterClassEx 실패 (%lu)\n", GetLastError());
+		return false;
+	}
+
+	RECT rc = { 0, 0, m_width, m_height };
+	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+
+	m_hWnd = CreateWindowEx(
+		0,
+		wc.lpszClassName,
+		title,
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		rc.right - rc.left,
+		rc.bottom - rc.top,
+		nullptr, nullptr, hInst, this);
+
+	if (!m_hWnd)
+	{
+		printf("CreateWindowEx 실패 (%lu)\n", GetLastError());
+		return false;
+	}
+
+	ShowWindow(m_hWnd, SW_SHOW);
+
+	m_running = true;
+	return true;
+}
+
+void Window::PumpMessages()
+{
+	MSG msg = {};
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		if (msg.message == WM_QUIT)
+		{
+			m_running = false;
+		}
+
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+}
 
 LRESULT CALLBACK Window::WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -44,65 +106,4 @@ LRESULT Window::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return DefWindowProc(m_hWnd, msg, wParam, lParam);
-}
-
-bool Window::Create(const wchar_t* title, int width, int height)
-{
-	HINSTANCE hInst = GetModuleHandle(nullptr);
-	m_width = width;
-	m_height = height;
-
-	//창의 기본 셋팅 정의
-	WNDCLASSEX wc = {};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WndProcStatic;
-	wc.hInstance = hInst;
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wc.lpszClassName = L"DX11SpriteRendererClass";
-
-	if (!RegisterClassEx(&wc))
-	{
-		printf("RegisterClassEx 실패 (%lu)\n", GetLastError());
-		return false;
-	}
-
-	RECT rc = { 0, 0, m_width, m_height };
-	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-
-	m_hWnd = CreateWindowEx(
-		0,
-		wc.lpszClassName,
-		L"DX11 Sprite Renederer",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		rc.right - rc.left,
-		rc.bottom - rc.top,
-		nullptr, nullptr, hInst, this);
-
-	if (!m_hWnd)
-	{
-		printf("CreateWindowEx 실패 (%lu)\n", GetLastError());
-		return false;
-	}
-
-	ShowWindow(m_hWnd, SW_SHOW);
-
-	m_running = true;
-	return true;
-}
-
-void Window::PumpMessages()
-{
-	MSG msg = {};
-	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-	{
-		if (msg.message == WM_QUIT)
-		{
-			m_running = false;
-		}
-
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
 }

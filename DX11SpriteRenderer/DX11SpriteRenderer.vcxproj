@@ -103,11 +103,15 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /D /I "$(ProjectDir)src\shaders\*.hlsl" "$(OutDir)shaders\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -124,13 +128,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\App.cpp" />
     <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\render\GraphicsDevice.cpp" />
+    <ClCompile Include="src\render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\App.h" />
     <ClInclude Include="src\core\Window.h" />
-    <ClInclude Include="src\render\GraphicsDeviece.h" />
+    <ClInclude Include="src\render\GraphicsDevice.h" />
+    <ClInclude Include="src\render\Shader.h" />
+    <ClInclude Include="src\render\Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\shaders\Sprite.ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="src\shaders\Sprite.vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
