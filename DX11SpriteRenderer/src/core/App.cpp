@@ -17,8 +17,11 @@ bool App::Initialize()
 		return false;
 	}
 
+	//텍스처 로드
+	if (!m_texture.LoadFromFile(m_gfx.GetDevice(), "assets/test.png"))	return false;
+
 	//테스트 객체 생성
-	if (!CreateTestTriangle())	return false;
+	if (!CreateTestQuad())	return false;
 
 	return true;
 }
@@ -46,36 +49,55 @@ void App::Render()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	ctx->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	ctx->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_shader.Bind(ctx);
-	ctx->Draw(3, 0);
+	m_texture.Bind(ctx);
+	ctx->DrawIndexed(6, 0, 0);
 
 	m_gfx.EndFrame();
 }
 
-bool App::CreateTestTriangle()
+bool App::CreateTestQuad()
 {
-	//임시 버텍스 차후 변경
 	Vertex vertices[] = {
-		//위 빨강
-		{ { 0.0f, 0.5f, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-		//우하 초록
-		{ { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-		//좌하 파랑
-		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+		{ { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },	//좌상단
+		{ { 0.5f, 0.5f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },	//우상단
+		{ { 0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },	//우하단
+		{ { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } }, //좌하단
 	};
 
-	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(vertices);
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	//삼각형 2개 - 정점 0과 2를 재사용
+	UINT indices[] = {
+		0, 1, 2,
+		0, 2, 3
+	};
 
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = vertices;
+	D3D11_BUFFER_DESC vbd = {};
+	vbd.Usage = D3D11_USAGE_DEFAULT;
+	vbd.ByteWidth = sizeof(vertices);
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
-	if (FAILED(m_gfx.GetDevice()->CreateBuffer(&bd, &initData, &m_vertexBuffer)))
+	D3D11_SUBRESOURCE_DATA vertexData = {};
+	vertexData.pSysMem = vertices;
+
+	if (FAILED(m_gfx.GetDevice()->CreateBuffer(&vbd, &vertexData, &m_vertexBuffer)))
 	{
 		printf("정점 버퍼 생성 실패\n");
+		return false;
+	}
+
+	D3D11_BUFFER_DESC ibd = {};
+	ibd.Usage = D3D11_USAGE_DEFAULT;
+	ibd.ByteWidth = sizeof(indices);
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA indexData = {};
+	indexData.pSysMem = indices;
+
+	if (FAILED(m_gfx.GetDevice()->CreateBuffer(&ibd, &indexData, &m_indexBuffer)))
+	{
+		printf("인덱스 버퍼 생성 실패\n");
 		return false;
 	}
 

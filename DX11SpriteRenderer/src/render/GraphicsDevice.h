@@ -16,8 +16,15 @@ public:
 private:
 	template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	bool CreateSampler();
+	bool CreateBlend();
+
 	ComPtr<ID3D11Device>			m_device;
 	ComPtr<ID3D11DeviceContext>		m_context;
 	ComPtr<IDXGISwapChain>			m_swapChain;
 	ComPtr<ID3D11RenderTargetView>	m_rtv;
+	ComPtr<ID3D11SamplerState>		m_sampler;
+	ComPtr<ID3D11BlendState>		m_blendState;
+
+	static constexpr float kBlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };

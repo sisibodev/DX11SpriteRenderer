@@ -27,7 +27,7 @@ bool Shader::Load(ID3D11Device* device, const wchar_t* vsPath, const wchar_t* ps
 		return false;
 	}
 
-	hr = device->CreateInputLayout(layout, layoutCount,vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &m_inputLayout);
+	hr = device->CreateInputLayout(layout, layoutCount, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &m_inputLayout);
 	if (FAILED(hr))
 	{
 		printf("CreateInputLayout 실패 (0x%08X)\n", hr);

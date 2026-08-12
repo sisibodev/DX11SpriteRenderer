@@ -46,29 +46,87 @@ bool GraphicsDevice::Initialize(HWND hWnd, int width, int height)
 	//백버퍼를 얻어서 렌더타겟 뷰 생성
 	ComPtr<ID3D11Texture2D> backBuffer;
 	hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
-	if (FAILED(hr)) { printf("GetBuffer 실패 (0x%08X)\n", hr); return false; }
+	if (FAILED(hr)) {
+		printf("GetBuffer 실패 (0x%08X)\n", hr);
+		return false;
+	}
 
 	hr = m_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &m_rtv);
-	if (FAILED(hr)) { printf("CreateRenderTargetView 실패 (0x%08X)\n", hr); return false; }
+	if (FAILED(hr)) {
+		printf("CreateRenderTargetView 실패 (0x%08X)\n", hr);
+		return false;
+	}
 
 	//뷰포트 설정
 	D3D11_VIEWPORT vp = {};
 	vp.TopLeftX = 0.0f;
 	vp.TopLeftY = 0.0f;
-	vp.Width = static_cast<float>(width);
-	vp.Height = static_cast<float>(height);
+	vp.Width	= static_cast<float>(width);
+	vp.Height	= static_cast<float>(height);
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	m_context->RSSetViewports(1, &vp);
+
+	//샘플러 생성
+	if (!CreateSampler()) return false;
+
+	//블렌더 생성
+	if (!CreateBlend()) return false;
 
 	printf("D3D11 초기화 성공 (FeatureLevel=0x%X)\n", featureLevel);
 	return true;
 }
 
+bool GraphicsDevice::CreateSampler()
+{
+	//샘플러 설정
+	D3D11_SAMPLER_DESC sd = {};
+	sd.Filter			= D3D11_FILTER_MIN_MAG_MIP_POINT;
+	sd.AddressU			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressW			= D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	sd.MinLOD			= 0;
+	sd.MaxLOD			= D3D11_FLOAT32_MAX;
+
+	HRESULT hr = m_device->CreateSamplerState(&sd, &m_sampler);
+	if (FAILED(hr))
+	{
+		printf("CreateSamplerState 실패 (0x%08X)\n", hr);
+		return false;
+	}
+
+	return true;
+}
+
+bool GraphicsDevice::CreateBlend()
+{
+	D3D11_BLEND_DESC bsd = {};
+	bsd.RenderTarget[0].BlendEnable				= TRUE;
+	bsd.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
+	bsd.RenderTarget[0].DestBlend				= D3D11_BLEND_INV_SRC_ALPHA;
+	bsd.RenderTarget[0].BlendOp					= D3D11_BLEND_OP_ADD;
+	bsd.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_ONE;
+	bsd.RenderTarget[0].DestBlendAlpha			= D3D11_BLEND_INV_SRC_ALPHA;
+	bsd.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	bsd.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	HRESULT hr = m_device->CreateBlendState(&bsd, &m_blendState);
+	if (FAILED(hr))
+	{
+		printf("CreateBlendState 실패 (0x%08X)\n", hr);
+		return false;
+	}
+
+	return true;
+}
+
 void GraphicsDevice::BeginFrame(const float clearColor[4])
 {
+	m_context->OMSetBlendState(m_blendState.Get(), kBlendFactor, 0xFFFFFFFF);
 	m_context->OMSetRenderTargets(1, m_rtv.GetAddressOf(), nullptr);
 	m_context->ClearRenderTargetView(m_rtv.Get(), clearColor);
+	m_context->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
 }
 
 void GraphicsDevice::EndFrame(bool vsync)

@@ -110,7 +110,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /D /I "$(ProjectDir)src\shaders\*.hlsl" "$(OutDir)shaders\"</Command>
+      <Command>xcopy /Y /D /I "$(ProjectDir)src\shaders\*.hlsl" "$(OutDir)shaders\"
+xcopy /Y /D /E /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,13 +134,16 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\render\GraphicsDevice.cpp" />
     <ClCompile Include="src\render\Shader.cpp" />
+    <ClCompile Include="src\render\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\App.h" />
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\render\GraphicsDevice.h" />
     <ClInclude Include="src\render\Shader.h" />
+    <ClInclude Include="src\render\Texture.h" />
     <ClInclude Include="src\render\Vertex.h" />
+    <ClInclude Include="src\third_party\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\shaders\Sprite.ps.hlsl">
