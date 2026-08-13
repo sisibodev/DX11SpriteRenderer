@@ -44,6 +44,9 @@ void App::Run()
 void App::Update(float dt)
 {
 	//아직 처리해야 될 부분은 없음
+	static float t = 0.0f;
+	t += 0.01f;
+	m_camera.SetPosition(sinf(t) * 200.0f, 0.0f);
 }
 
 void App::Render()
@@ -128,7 +131,7 @@ void App::PushQuad(float x, float y, float w, float h)
 	const XMFLOAT4 white{ 1.0f, 1.0f, 1.0f, 1.0f };
 
 	//사이즈가 많이 생성하게 되면 리턴
-	if (m_cpuVertices.size() * 4 > kMaxVertices) return;
+	if (m_cpuVertices.size() + 4 > kMaxVertices) return;
 
 	m_cpuVertices.push_back({ { x,		y,		0.0f }, { 0.0f, 0.0f }, white });	//좌상단
 	m_cpuVertices.push_back({ { x + w,	y,		0.0f }, { 1.0f, 0.0f }, white });	//우상단
