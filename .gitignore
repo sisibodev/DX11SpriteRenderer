@@ -33,3 +33,6 @@ ipch/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# VS 인코딩 변환 임시 폴더
+enc_temp_folder/
