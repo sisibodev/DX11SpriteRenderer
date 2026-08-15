@@ -135,6 +135,7 @@ xcopy /Y /D /E /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     <ClCompile Include="src\render\Camera2D.cpp" />
     <ClCompile Include="src\render\GraphicsDevice.cpp" />
     <ClCompile Include="src\render\Shader.cpp" />
+    <ClCompile Include="src\render\SpriteBatch.cpp" />
     <ClCompile Include="src\render\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +144,7 @@ xcopy /Y /D /E /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     <ClInclude Include="src\render\Camera2D.h" />
     <ClInclude Include="src\render\GraphicsDevice.h" />
     <ClInclude Include="src\render\Shader.h" />
+    <ClInclude Include="src\render\SpriteBatch.h" />
     <ClInclude Include="src\render\Texture.h" />
     <ClInclude Include="src\render\Vertex.h" />
     <ClInclude Include="src\third_party\stb_image.h" />

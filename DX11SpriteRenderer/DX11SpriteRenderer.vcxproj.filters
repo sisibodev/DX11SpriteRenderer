@@ -43,6 +43,9 @@
     <ClCompile Include="src\render\Camera2D.cpp">
       <Filter>src\render</Filter>
     </ClCompile>
+    <ClCompile Include="src\render\SpriteBatch.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Window.h">
@@ -67,6 +70,9 @@
       <Filter>src\third_party</Filter>
     </ClInclude>
     <ClInclude Include="src\render\Camera2D.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\SpriteBatch.h">
       <Filter>src\render</Filter>
     </ClInclude>
   </ItemGroup>
