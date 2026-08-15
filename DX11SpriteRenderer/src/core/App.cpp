@@ -44,9 +44,6 @@ void App::Run()
 void App::Update(float dt)
 {
 	//아직 처리해야 될 부분은 없음
-	static float t = 0.0f;
-	t += 0.01f;
-	m_camera.SetPosition(sinf(t) * 200.0f, 0.0f);
 }
 
 void App::Render()
