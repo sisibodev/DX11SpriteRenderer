@@ -4,11 +4,11 @@
 
 using namespace DirectX;
 
-bool SpriteBatch::Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSprite)
+bool SpriteBatch::Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSpriteCount)
 {
 	m_context = context;
-	m_maxSprite = maxSprite;
-	m_maxVertice = maxSprite * 4;
+	m_maxSpriteCount = maxSpriteCount;
+	m_maxVertexCount = maxSpriteCount * 4;
 
 	if (!m_shader.Load(device, L"shaders/Sprite.vs.hlsl", L"shaders/Sprite.ps.hlsl",
 		kVertexLayout, kVertexLayoutCount))
@@ -61,7 +61,7 @@ void SpriteBatch::Draw(const Texture& texture, float x, float y, float w, float 
 	}
 
 	//버퍼가 가득 차면 비우기
-	if (static_cast<int>(m_cpuVertices.size()) + 4 > m_maxVertice)
+	if (static_cast<int>(m_cpuVertices.size()) + 4 > m_maxVertexCount)
 	{
 		Flush();
 	}
@@ -87,7 +87,7 @@ bool SpriteBatch::CreateBuffers(ID3D11Device* device)
 {
 	D3D11_BUFFER_DESC vbd = {};
 	vbd.Usage = D3D11_USAGE_DYNAMIC;
-	vbd.ByteWidth = sizeof(Vertex) * m_maxVertice;
+	vbd.ByteWidth = sizeof(Vertex) * m_maxVertexCount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// cpu가 사용할 수 있게 셋팅
 
@@ -97,8 +97,8 @@ bool SpriteBatch::CreateBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	std::vector<UINT> indices(m_maxSprite * 6);
-	for (int i = 0; i < m_maxSprite; ++i)
+	std::vector<UINT> indices(m_maxSpriteCount * 6);
+	for (int i = 0; i < m_maxSpriteCount; ++i)
 	{
 		//정점
 		const UINT v = i * 4;
@@ -130,7 +130,7 @@ bool SpriteBatch::CreateBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	m_cpuVertices.reserve(m_maxVertice);
+	m_cpuVertices.reserve(m_maxVertexCount);
 
 	return true;
 }

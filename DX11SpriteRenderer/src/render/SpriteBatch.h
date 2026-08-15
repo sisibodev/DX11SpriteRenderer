@@ -8,7 +8,7 @@
 class SpriteBatch
 {
 public:
-	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSprite = 4096);
+	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSpriteCount = 4096);
 	void Begin(const Camera2D& camera);
 	void Draw(const Texture& texture, float x, float y, float w, float h);
 	void End();
@@ -39,8 +39,8 @@ private:
 	std::vector<Vertex> m_cpuVertices;
 	const Texture* m_currentTexture = nullptr;
 
-	int m_maxSprite = 0;
-	int m_maxVertice = 0;
+	int m_maxSpriteCount = 0;
+	int m_maxVertexCount = 0;
 	int m_drawCallCount = 0;
 	int m_spriteCount = 0;
 };
