@@ -13,6 +13,7 @@ bool App::Initialize()
 
 	//텍스처 로드
 	if (!m_texture.LoadFromFile(m_gfx.GetDevice(), "assets/test.png")) return false;
+	if (!m_atlasTexture.LoadFromFile(m_gfx.GetDevice(), "assets/tilemap_packed.png")) return false;
 
 	//카메라 생성
 	m_camera.SetViewportSize(m_window.GetWidth(), m_window.GetHeight());
@@ -50,23 +51,71 @@ void App::Render()
 
 void App::DrawScene()
 {
+	//드로우 콜 정보 초기화
+	m_spriteBatch.ResetStats();
+
+	DrawBlendDemo();
+
+	printf("스프라이트 : %d, 드로우콜 : %d(%d, %d, %d)\n",
+		m_spriteBatch.GetSpriteCount(), m_spriteBatch.GetDrawCallCount(),
+		m_spriteBatch.GetTextureSwitchCount(), m_spriteBatch.GetOverflowCount(),
+		m_spriteBatch.GetEndOfBatchCount());
+}
+
+void App::DrawAtlasDemo()
+{
 	m_spriteBatch.Begin(m_camera);
 
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i < kTileCount; ++i)
+	{
+		int col = i % kAtlasColumns;
+		int row = i / kAtlasColumns;
+
+		SpriteBatch::SpriteDesc desc;
+		desc.x = 16 + col * 34;
+		desc.y = 16 + row * 34;
+		desc.w = 32;
+		desc.h = 32;
+		desc.srcX = col * kTileSize;
+		desc.srcY = row * kTileSize;
+		desc.srcW = kTileSize;
+		desc.srcH = kTileSize;
+
+		m_spriteBatch.Draw(m_atlasTexture, desc);
+	}
+
+	m_spriteBatch.End();
+}
+
+void App::DrawBlendDemo()
+{
+	m_spriteBatch.Begin(m_camera, BlendMode::Alpha);
+
+	for (int i = 0; i < 10; ++i)
 	{
 		SpriteBatch::SpriteDesc desc;
-		desc.x = 100.0f + (i % 20) * 60.0f;
-		desc.y = 100.0f + (i / 20) * 60.0f;
-		desc.w = 48.0f;
-		desc.h = 48.0f;
+		desc.x = 200;
+		desc.y = 200;
+		desc.w = 400;
+		desc.h = 400;
 
-		desc.rotation = m_angle + i * 0.1f;
-		desc.tint = { 1.0f, 1.0f - (i % 10) * 0.1f, 0.5f, 1.0f };
 		m_spriteBatch.Draw(m_texture, desc);
 	}
 
 	m_spriteBatch.End();
 
-	printf("스프라이트 : %d, 드로우콜 : %d\n",
-		m_spriteBatch.GetSpriteCount(), m_spriteBatch.GetDrawCallCount());
+	m_spriteBatch.Begin(m_camera, BlendMode::Additive);
+
+	for (int i = 0; i < 2; ++i)
+	{
+		SpriteBatch::SpriteDesc desc;
+		desc.x = 700;
+		desc.y = 200;
+		desc.w = 400;
+		desc.h = 400;
+
+		m_spriteBatch.Draw(m_texture, desc);
+	}
+
+	m_spriteBatch.End();
 }

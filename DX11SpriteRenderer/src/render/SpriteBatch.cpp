@@ -23,25 +23,34 @@ bool SpriteBatch::Initialize(ID3D11Device* device, ID3D11DeviceContext* context,
 	//카메라 버퍼 생성
 	if (!CreateCameraBuffers(device)) return false;
 
+	//블랜드 생성
+	if (!CreateBlend(device)) return false;
+
 	return true;
 }
 
-void SpriteBatch::Begin(const Camera2D& camera)
+void SpriteBatch::Begin(const Camera2D& camera, BlendMode mode)
 {
 	//그리기전 초기화
 	m_cpuVertices.clear();
 	m_currentTexture = nullptr;
-	m_drawCallCount = 0;
-	m_spriteCount = 0;
 
 	//카메라 행렬 업로드 - 프레임당 1회
 	CameraConstants cb;
 	XMStoreFloat4x4(&cb.viewProj, XMMatrixTranspose(camera.GetViewProjection()));
 
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
-	m_context->Map(m_cameraCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	if (FAILED(m_context->Map(m_cameraCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
+	{
+		printf("Map 실패");
+		return;
+	}
 	memcpy(mapped.pData, &cb, sizeof(cb));
 	m_context->Unmap(m_cameraCB.Get(), 0);
+
+	//Mode에 따른 블랜드 변경
+	ID3D11BlendState* blend = (mode == BlendMode::Alpha) ? m_blendAlpha.Get() : m_blendAdditive.Get();
+	m_context->OMSetBlendState(blend, kBlendFactor, 0xFFFFFFFF);
 
 	//그리기
 	UINT stride = sizeof(Vertex);
@@ -50,6 +59,7 @@ void SpriteBatch::Begin(const Camera2D& camera)
 	m_context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_context->VSSetConstantBuffers(0, 1, m_cameraCB.GetAddressOf());
+
 	m_shader.Bind(m_context);
 }
 
@@ -69,13 +79,13 @@ void SpriteBatch::Draw(const Texture& texture, const SpriteDesc& desc)
 	//그려야 되는 텍스쳐가 현재 텍스쳐랑 다르면 비우기
 	if (m_currentTexture != nullptr && m_currentTexture != &texture)
 	{
-		Flush();
+		Flush(FlushReason::TextureChange);
 	}
 
 	//버퍼가 가득 차면 비우기
 	if (static_cast<int>(m_cpuVertices.size()) + 4 > m_maxVertexCount)
 	{
-		Flush();
+		Flush(FlushReason::BufferFull);
 	}
 
 	m_currentTexture = &texture;
@@ -88,8 +98,20 @@ void SpriteBatch::Draw(const Texture& texture, const SpriteDesc& desc)
 	const float lx[4] = { -ox, desc.w - ox, desc.w - ox, -ox };
 	const float ly[4] = { -oy, -oy, desc.h - oy, desc.h - oy };
 
-	const float uvx[4] = { 0.0f, 1.0f, 1.0f, 0.0f };
-	const float uvy[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+	const float texW = static_cast<float>(texture.GetWidth());
+	const float texH = static_cast<float>(texture.GetHeight());
+
+	//srcW, H가 0보다 크면 해당 값, 0이면 텍스쳐 전체 사이즈를 사용
+	const float sw = (desc.srcW > 0.0f) ? desc.srcW : texW;
+	const float sh = (desc.srcH > 0.0f) ? desc.srcH : texH;
+
+	const float u0 = desc.srcX / texW;
+	const float v0 = desc.srcY / texH;
+	const float u1 = (desc.srcX + sw) / texW;
+	const float v1 = (desc.srcY + sh) / texH;
+
+	const float uvx[4] = { u0, u1, u1, u0 };
+	const float uvy[4] = { v0, v0, v1, v1 };
 
 	//회전값이 없을땐 계산 안하도록
 	float c = 1.0f, s = 0.0f;
@@ -116,7 +138,17 @@ void SpriteBatch::Draw(const Texture& texture, const SpriteDesc& desc)
 
 void SpriteBatch::End()
 {
-	Flush();
+	Flush(FlushReason::EndOfBatch);
+}
+
+void SpriteBatch::ResetStats()
+{
+	//드로우콜 리셋
+	m_drawCallCount = 0;
+	m_textureSwitchCount = 0;
+	m_overflowCount = 0;
+	m_endOfBatchCount = 0;
+	m_spriteCount = 0;
 }
 
 bool SpriteBatch::CreateBuffers(ID3D11Device* device)
@@ -188,13 +220,49 @@ bool SpriteBatch::CreateCameraBuffers(ID3D11Device* device)
 	return true;
 }
 
-void SpriteBatch::Flush()
+bool SpriteBatch::CreateBlend(ID3D11Device* device)
+{
+	D3D11_BLEND_DESC bsd = {};
+	bsd.RenderTarget[0].BlendEnable				= TRUE;
+	bsd.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
+	bsd.RenderTarget[0].DestBlend				= D3D11_BLEND_INV_SRC_ALPHA;
+	bsd.RenderTarget[0].BlendOp					= D3D11_BLEND_OP_ADD;
+	bsd.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_ONE;
+	bsd.RenderTarget[0].DestBlendAlpha			= D3D11_BLEND_INV_SRC_ALPHA;
+	bsd.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	bsd.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	//알파 블렌드 생성
+	HRESULT hr = device->CreateBlendState(&bsd, &m_blendAlpha);
+	if (FAILED(hr))
+	{
+		printf("CreateBlendState 실패 (0x%08X)\n", hr);
+		return false;
+	}
+
+	//애디티브 블렌드 생성
+	bsd.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	hr = device->CreateBlendState(&bsd, &m_blendAdditive);
+	if (FAILED(hr))
+	{
+		printf("CreateBlendState 실패 (0x%08X)\n", hr);
+		return false;
+	}
+
+	return true;
+}
+
+void SpriteBatch::Flush(FlushReason reason)
 {
 	if (m_cpuVertices.empty() || m_currentTexture == nullptr) return;
 
 	//GPU 버퍼에 통째로 복사
 	D3D11_MAPPED_SUBRESOURCE vmapped = {};
-	m_context->Map(m_vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &vmapped);
+	if (FAILED(m_context->Map(m_vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &vmapped)))
+	{
+		printf("Map 실패");
+		return;
+	}
 	memcpy(vmapped.pData, m_cpuVertices.data(), sizeof(Vertex) * m_cpuVertices.size());
 	m_context->Unmap(m_vertexBuffer.Get(), 0);
 
@@ -205,5 +273,12 @@ void SpriteBatch::Flush()
 	m_context->DrawIndexed(indexCount, 0, 0);
 
 	++m_drawCallCount;
+	switch (reason)
+	{
+	case FlushReason::TextureChange:	++m_textureSwitchCount;	break;
+	case FlushReason::BufferFull:		++m_overflowCount;		break;
+	case FlushReason::EndOfBatch:		++m_endOfBatchCount;	break;
+	}
+
 	m_cpuVertices.clear();
 }

@@ -70,9 +70,6 @@ bool GraphicsDevice::Initialize(HWND hWnd, int width, int height)
 	//샘플러 생성
 	if (!CreateSampler()) return false;
 
-	//블렌더 생성
-	if (!CreateBlend()) return false;
-
 	//래스터라이저 생성
 	if (!CreateRasterizerState()) return false;
 
@@ -82,7 +79,6 @@ bool GraphicsDevice::Initialize(HWND hWnd, int width, int height)
 
 void GraphicsDevice::BeginFrame(const float clearColor[4])
 {
-	m_context->OMSetBlendState(m_blendState.Get(), kBlendFactor, 0xFFFFFFFF);
 	m_context->OMSetRenderTargets(1, m_rtv.GetAddressOf(), nullptr);
 	m_context->ClearRenderTargetView(m_rtv.Get(), clearColor);
 	m_context->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
@@ -110,28 +106,6 @@ bool GraphicsDevice::CreateSampler()
 	if (FAILED(hr))
 	{
 		printf("CreateSamplerState 실패 (0x%08X)\n", hr);
-		return false;
-	}
-
-	return true;
-}
-
-bool GraphicsDevice::CreateBlend()
-{
-	D3D11_BLEND_DESC bsd = {};
-	bsd.RenderTarget[0].BlendEnable				= TRUE;
-	bsd.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
-	bsd.RenderTarget[0].DestBlend				= D3D11_BLEND_INV_SRC_ALPHA;
-	bsd.RenderTarget[0].BlendOp					= D3D11_BLEND_OP_ADD;
-	bsd.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_ONE;
-	bsd.RenderTarget[0].DestBlendAlpha			= D3D11_BLEND_INV_SRC_ALPHA;
-	bsd.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
-	bsd.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	HRESULT hr = m_device->CreateBlendState(&bsd, &m_blendState);
-	if (FAILED(hr))
-	{
-		printf("CreateBlendState 실패 (0x%08X)\n", hr);
 		return false;
 	}
 

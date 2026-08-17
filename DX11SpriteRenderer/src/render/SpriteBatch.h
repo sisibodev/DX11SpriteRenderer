@@ -5,6 +5,18 @@
 #include "render/Vertex.h"
 #include <vector>
 
+enum class FlushReason
+{
+	TextureChange,
+	BufferFull,
+	EndOfBatch
+};
+
+enum class BlendMode {
+	Alpha,
+	Additive
+};
+
 class SpriteBatch
 {
 public:
@@ -12,18 +24,26 @@ public:
 	{
 		float x = 0.0f, y = 0.0f;
 		float w = 0.0f, h = 0.0f;
+		float srcX = 0.0f, srcY = 0.0f;
+		float srcW = 0.0f, srcH = 0.0f;
 		float rotation = 0.0f;
 		DirectX::XMFLOAT2 origin{ 0.5f, 0.5f };	//회전 중심 설정
 		DirectX::XMFLOAT4 tint{ 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSpriteCount = 4096);
-	void Begin(const Camera2D& camera);
+
+	void Begin(const Camera2D& camera, BlendMode mode = BlendMode::Alpha);
 	void Draw(const Texture& texture, float x, float y, float w, float h);
 	void Draw(const Texture& texture, const SpriteDesc& desc);
 	void End();
 
+	void ResetStats();
+
 	int GetDrawCallCount() const { return m_drawCallCount; }
+	int GetTextureSwitchCount() const { return m_textureSwitchCount; }
+	int GetOverflowCount() const { return m_overflowCount; }
+	int GetEndOfBatchCount() const { return m_endOfBatchCount; }
 	int GetSpriteCount() const { return m_spriteCount; }
 
 private:
@@ -31,7 +51,8 @@ private:
 
 	bool CreateBuffers(ID3D11Device* device);
 	bool CreateCameraBuffers(ID3D11Device* device);
-	void Flush();
+	bool CreateBlend(ID3D11Device* device);
+	void Flush(FlushReason reason);
 
 	struct CameraConstants
 	{
@@ -45,12 +66,21 @@ private:
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
 	ComPtr<ID3D11Buffer> m_indexBuffer;
 	ComPtr<ID3D11Buffer> m_cameraCB;
+	ComPtr<ID3D11BlendState> m_blendAlpha;
+	ComPtr<ID3D11BlendState> m_blendAdditive;
 
 	std::vector<Vertex> m_cpuVertices;
 	const Texture* m_currentTexture = nullptr;
 
 	int m_maxSpriteCount = 0;
 	int m_maxVertexCount = 0;
+
+	//드로우 콜 관련 변수
 	int m_drawCallCount = 0;
+	int m_textureSwitchCount = 0;
+	int m_overflowCount = 0;
+	int m_endOfBatchCount = 0;
 	int m_spriteCount = 0;
+
+	static constexpr float kBlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };

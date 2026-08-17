@@ -17,7 +17,6 @@ private:
 	template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	bool CreateSampler();
-	bool CreateBlend();
 	bool CreateRasterizerState();
 
 	ComPtr<ID3D11Device>			m_device;
@@ -25,8 +24,5 @@ private:
 	ComPtr<IDXGISwapChain>			m_swapChain;
 	ComPtr<ID3D11RenderTargetView>	m_rtv;
 	ComPtr<ID3D11SamplerState>		m_sampler;
-	ComPtr<ID3D11BlendState>		m_blendState;
 	ComPtr<ID3D11RasterizerState>	m_rasterState;
-
-	static constexpr float kBlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
