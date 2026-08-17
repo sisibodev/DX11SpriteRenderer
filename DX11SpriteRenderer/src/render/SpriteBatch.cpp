@@ -1,6 +1,7 @@
 ﻿#include "render/SpriteBatch.h"
 #include <cstdio>
 #include <cstring>
+#include <cmath>
 
 using namespace DirectX;
 
@@ -54,6 +55,17 @@ void SpriteBatch::Begin(const Camera2D& camera)
 
 void SpriteBatch::Draw(const Texture& texture, float x, float y, float w, float h)
 {
+	SpriteDesc desc;
+	desc.x = x;
+	desc.y = y;
+	desc.w = w;
+	desc.h = h;
+
+	Draw(texture, desc);
+}
+
+void SpriteBatch::Draw(const Texture& texture, const SpriteDesc& desc)
+{
 	//그려야 되는 텍스쳐가 현재 텍스쳐랑 다르면 비우기
 	if (m_currentTexture != nullptr && m_currentTexture != &texture)
 	{
@@ -68,12 +80,36 @@ void SpriteBatch::Draw(const Texture& texture, float x, float y, float w, float 
 
 	m_currentTexture = &texture;
 
-	const XMFLOAT4 white{ 1.0f, 1.0f, 1.0f, 1.0f };
+	//원점
+	const float ox = desc.w * desc.origin.x;
+	const float oy = desc.h * desc.origin.y;
 
-	m_cpuVertices.push_back({ { x,		y,		0.0f }, { 0.0f, 0.0f }, white });	//좌상단
-	m_cpuVertices.push_back({ { x + w,	y,		0.0f }, { 1.0f, 0.0f }, white });	//우상단
-	m_cpuVertices.push_back({ { x + w,	y + h,	0.0f }, { 1.0f, 1.0f }, white });	//우하단
-	m_cpuVertices.push_back({ { x,		y + h,	0.0f }, { 0.0f, 1.0f }, white });	//좌하단
+	//원점 기준 로컬 좌표
+	const float lx[4] = { -ox, desc.w - ox, desc.w - ox, -ox };
+	const float ly[4] = { -oy, -oy, desc.h - oy, desc.h - oy };
+
+	const float uvx[4] = { 0.0f, 1.0f, 1.0f, 0.0f };
+	const float uvy[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+
+	//회전값이 없을땐 계산 안하도록
+	float c = 1.0f, s = 0.0f;
+	if (desc.rotation != 0.0f)
+	{
+		c = cosf(desc.rotation);
+		s = sinf(desc.rotation);
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		const float rx = lx[i] * c - ly[i] * s;
+		const float ry = lx[i] * s + ly[i] * c;
+
+		m_cpuVertices.push_back({
+			{ desc.x + rx, desc.y + ry, 0.0f },
+			{ uvx[i], uvy[i] },
+			desc.tint
+		});
+	}
 
 	++m_spriteCount;
 }
@@ -103,7 +139,7 @@ bool SpriteBatch::CreateBuffers(ID3D11Device* device)
 		//정점
 		const UINT v = i * 4;
 		//인덱스 번호
-		const int o = i * 6;
+		const UINT o = i * 6;
 
 		//인덱스 첫번째 삼각형
 		indices[o + 0] = v + 0;

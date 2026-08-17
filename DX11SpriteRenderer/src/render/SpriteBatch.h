@@ -8,9 +8,19 @@
 class SpriteBatch
 {
 public:
+	struct SpriteDesc
+	{
+		float x = 0.0f, y = 0.0f;
+		float w = 0.0f, h = 0.0f;
+		float rotation = 0.0f;
+		DirectX::XMFLOAT2 origin{ 0.5f, 0.5f };	//회전 중심 설정
+		DirectX::XMFLOAT4 tint{ 1.0f, 1.0f, 1.0f, 1.0f };
+	};
+
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSpriteCount = 4096);
 	void Begin(const Camera2D& camera);
 	void Draw(const Texture& texture, float x, float y, float w, float h);
+	void Draw(const Texture& texture, const SpriteDesc& desc);
 	void End();
 
 	int GetDrawCallCount() const { return m_drawCallCount; }

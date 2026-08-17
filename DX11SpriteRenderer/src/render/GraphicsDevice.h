@@ -18,6 +18,7 @@ private:
 
 	bool CreateSampler();
 	bool CreateBlend();
+	bool CreateRasterizerState();
 
 	ComPtr<ID3D11Device>			m_device;
 	ComPtr<ID3D11DeviceContext>		m_context;
@@ -25,6 +26,7 @@ private:
 	ComPtr<ID3D11RenderTargetView>	m_rtv;
 	ComPtr<ID3D11SamplerState>		m_sampler;
 	ComPtr<ID3D11BlendState>		m_blendState;
+	ComPtr<ID3D11RasterizerState>	m_rasterState;
 
 	static constexpr float kBlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };

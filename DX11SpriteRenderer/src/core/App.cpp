@@ -36,6 +36,7 @@ void App::Run()
 void App::Update(float dt)
 {
 	//아직 처리해야 될 부분은 없음
+	m_angle += 0.02f;
 }
 
 void App::Render()
@@ -51,12 +52,17 @@ void App::DrawScene()
 {
 	m_spriteBatch.Begin(m_camera);
 
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 200; ++i)
 	{
-		const float x = 20.0f + (i % 40) * 31.0f;
-		const float y = 20.0f + (i / 40) * 27.0f;
+		SpriteBatch::SpriteDesc desc;
+		desc.x = 100.0f + (i % 20) * 60.0f;
+		desc.y = 100.0f + (i / 20) * 60.0f;
+		desc.w = 48.0f;
+		desc.h = 48.0f;
 
-		m_spriteBatch.Draw(m_texture, x, y, 28.0f, 24.0f);
+		desc.rotation = m_angle + i * 0.1f;
+		desc.tint = { 1.0f, 1.0f - (i % 10) * 0.1f, 0.5f, 1.0f };
+		m_spriteBatch.Draw(m_texture, desc);
 	}
 
 	m_spriteBatch.End();

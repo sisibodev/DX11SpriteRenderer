@@ -24,5 +24,7 @@ private:
 	Texture m_texture2;
 	SpriteBatch m_spriteBatch;
 
+	float m_angle = 0.0f;
+
 	static constexpr float kClearColor[4] = { 0.1f,0.3f,0.6f,1.0f };
 };

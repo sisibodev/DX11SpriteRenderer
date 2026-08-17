@@ -73,8 +73,25 @@ bool GraphicsDevice::Initialize(HWND hWnd, int width, int height)
 	//블렌더 생성
 	if (!CreateBlend()) return false;
 
+	//래스터라이저 생성
+	if (!CreateRasterizerState()) return false;
+
 	printf("D3D11 초기화 성공 (FeatureLevel=0x%X)\n", featureLevel);
 	return true;
+}
+
+void GraphicsDevice::BeginFrame(const float clearColor[4])
+{
+	m_context->OMSetBlendState(m_blendState.Get(), kBlendFactor, 0xFFFFFFFF);
+	m_context->OMSetRenderTargets(1, m_rtv.GetAddressOf(), nullptr);
+	m_context->ClearRenderTargetView(m_rtv.Get(), clearColor);
+	m_context->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
+	m_context->RSSetState(m_rasterState.Get());
+}
+
+void GraphicsDevice::EndFrame(bool vsync)
+{
+	m_swapChain->Present(vsync, 0);
 }
 
 bool GraphicsDevice::CreateSampler()
@@ -121,15 +138,19 @@ bool GraphicsDevice::CreateBlend()
 	return true;
 }
 
-void GraphicsDevice::BeginFrame(const float clearColor[4])
+bool GraphicsDevice::CreateRasterizerState()
 {
-	m_context->OMSetBlendState(m_blendState.Get(), kBlendFactor, 0xFFFFFFFF);
-	m_context->OMSetRenderTargets(1, m_rtv.GetAddressOf(), nullptr);
-	m_context->ClearRenderTargetView(m_rtv.Get(), clearColor);
-	m_context->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
-}
+	D3D11_RASTERIZER_DESC rd = {};
+	rd.FillMode = D3D11_FILL_SOLID;
+	rd.CullMode = D3D11_CULL_NONE;		//2D는 앞뒤 구분이 없다.
+	rd.DepthClipEnable = TRUE;
 
-void GraphicsDevice::EndFrame(bool vsync)
-{
-	m_swapChain->Present(vsync, 0);
+	HRESULT hr = m_device->CreateRasterizerState(&rd, &m_rasterState);
+	if (FAILED(hr))
+	{
+		printf("CreateRasterizerState 실패 (0x%08X)\n", hr);
+		return false;
+	}
+
+	return true;
 }
