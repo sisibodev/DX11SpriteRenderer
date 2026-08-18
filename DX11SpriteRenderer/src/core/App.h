@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "core/Window.h"
+#include "core/Timer.h"
 #include "render/GraphicsDevice.h"
 #include "render/Texture.h"
 #include "render/Camera2D.h"
 #include "render/SpriteBatch.h"
+#include "render/AnimatedSprite.h"
 
 class App
 {
@@ -18,9 +20,17 @@ private:
 
 	void DrawAtlasDemo();
 	void DrawBlendDemo();
+	void DrawAniDemo();
+
+	void CreateWalkAni();
 
 	Window m_window;
 	GraphicsDevice m_gfx;
+	Timer m_timer;
+
+	AnimatedSprite m_ani;
+
+	AnimationClip m_walkClip;
 
 	Camera2D m_camera;
 	Texture m_texture;

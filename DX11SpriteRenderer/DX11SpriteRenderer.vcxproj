@@ -130,8 +130,10 @@ xcopy /Y /D /E /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\App.cpp" />
+    <ClCompile Include="src\core\Timer.cpp" />
     <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\render\AnimatedSprite.cpp" />
     <ClCompile Include="src\render\Camera2D.cpp" />
     <ClCompile Include="src\render\GraphicsDevice.cpp" />
     <ClCompile Include="src\render\Shader.cpp" />
@@ -140,7 +142,10 @@ xcopy /Y /D /E /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\App.h" />
+    <ClInclude Include="src\core\Timer.h" />
     <ClInclude Include="src\core\Window.h" />
+    <ClInclude Include="src\render\AnimatedSprite.h" />
+    <ClInclude Include="src\render\AnimationClip.h" />
     <ClInclude Include="src\render\Camera2D.h" />
     <ClInclude Include="src\render\GraphicsDevice.h" />
     <ClInclude Include="src\render\Shader.h" />

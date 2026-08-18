@@ -46,6 +46,12 @@
     <ClCompile Include="src\render\SpriteBatch.cpp">
       <Filter>src\render</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Timer.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render\AnimatedSprite.cpp">
+      <Filter>src\render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Window.h">
@@ -73,6 +79,15 @@
       <Filter>src\render</Filter>
     </ClInclude>
     <ClInclude Include="src\render\SpriteBatch.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Timer.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\AnimationClip.h">
+      <Filter>src\render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\render\AnimatedSprite.h">
       <Filter>src\render</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,23 +21,31 @@ bool App::Initialize()
 	//SpriteBatch 생성 및 초기화
 	if (!m_spriteBatch.Initialize(m_gfx.GetDevice(), m_gfx.GetContext())) return false;
 
+	//애니메이션 생성
+	CreateWalkAni();
+
 	return true;
 }
 
 void App::Run()
 {
+	//타이머 초기화
+	m_timer.Reset();
+
 	while (m_window.IsRunning())
 	{
 		m_window.PumpMessages();
-		Update(0.1f);
+
+		//1틱에 지나간 시간 계산
+		m_timer.Tick();
+		Update(m_timer.GetDeltaTime());
 		Render();
 	}
 }
 
 void App::Update(float dt)
 {
-	//아직 처리해야 될 부분은 없음
-	m_angle += 0.02f;
+	m_ani.Update(dt);
 }
 
 void App::Render()
@@ -54,12 +62,16 @@ void App::DrawScene()
 	//드로우 콜 정보 초기화
 	m_spriteBatch.ResetStats();
 
-	DrawBlendDemo();
+	//DrawAtlasDemo();
+	//DrawBlendDemo();
+	DrawAniDemo();
 
-	printf("스프라이트 : %d, 드로우콜 : %d(%d, %d, %d)\n",
-		m_spriteBatch.GetSpriteCount(), m_spriteBatch.GetDrawCallCount(),
-		m_spriteBatch.GetTextureSwitchCount(), m_spriteBatch.GetOverflowCount(),
-		m_spriteBatch.GetEndOfBatchCount());
+	const auto& stats = m_spriteBatch.GetStats();
+	printf("Time: %f, 스프라이트 : %d, 드로우콜 : %d(%d, %d, %d)\n",
+		m_timer.GetDeltaTime(),
+		stats.spriteCount, stats.drawCallCount,
+		stats.textureSwitchCount, stats.overflowCount,
+		stats.endOfBatchCount);
 }
 
 void App::DrawAtlasDemo()
@@ -118,4 +130,36 @@ void App::DrawBlendDemo()
 	}
 
 	m_spriteBatch.End();
+}
+
+void App::DrawAniDemo()
+{
+	m_spriteBatch.Begin(m_camera);
+
+	int index = m_ani.GetCurrentTile();
+	int col = index % kAtlasColumns;
+	int row = index / kAtlasColumns;
+
+	SpriteBatch::SpriteDesc desc;
+	desc.x = 300;
+	desc.y = 300;
+	desc.w = 400;
+	desc.h = 400;
+	desc.srcX = kTileSize * col;
+	desc.srcY = kTileSize * row;
+	desc.srcW = kTileSize;
+	desc.srcH = kTileSize;
+
+	m_spriteBatch.Draw(m_atlasTexture, desc);
+
+	m_spriteBatch.End();
+}
+
+void App::CreateWalkAni()
+{
+	m_walkClip.frames = { 51, 24, 78, 24 };
+	m_walkClip.frameDuration = 0.15f;
+	m_walkClip.loop = true;
+
+	m_ani.SetClip(&m_walkClip);
 }

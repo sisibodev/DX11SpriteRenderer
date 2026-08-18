@@ -133,22 +133,12 @@ void SpriteBatch::Draw(const Texture& texture, const SpriteDesc& desc)
 		});
 	}
 
-	++m_spriteCount;
+	++m_stats.spriteCount;
 }
 
 void SpriteBatch::End()
 {
 	Flush(FlushReason::EndOfBatch);
-}
-
-void SpriteBatch::ResetStats()
-{
-	//드로우콜 리셋
-	m_drawCallCount = 0;
-	m_textureSwitchCount = 0;
-	m_overflowCount = 0;
-	m_endOfBatchCount = 0;
-	m_spriteCount = 0;
 }
 
 bool SpriteBatch::CreateBuffers(ID3D11Device* device)
@@ -272,12 +262,12 @@ void SpriteBatch::Flush(FlushReason reason)
 	const UINT indexCount = static_cast<UINT>(m_cpuVertices.size() / 4 * 6);
 	m_context->DrawIndexed(indexCount, 0, 0);
 
-	++m_drawCallCount;
+	++m_stats.drawCallCount;
 	switch (reason)
 	{
-	case FlushReason::TextureChange:	++m_textureSwitchCount;	break;
-	case FlushReason::BufferFull:		++m_overflowCount;		break;
-	case FlushReason::EndOfBatch:		++m_endOfBatchCount;	break;
+	case FlushReason::TextureChange:	++m_stats.textureSwitchCount;	break;
+	case FlushReason::BufferFull:		++m_stats.overflowCount;		break;
+	case FlushReason::EndOfBatch:		++m_stats.endOfBatchCount;		break;
 	}
 
 	m_cpuVertices.clear();

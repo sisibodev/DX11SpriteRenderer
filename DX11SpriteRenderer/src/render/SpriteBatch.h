@@ -31,6 +31,15 @@ public:
 		DirectX::XMFLOAT4 tint{ 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 
+	struct Stats
+	{
+		int drawCallCount = 0;
+		int textureSwitchCount = 0;
+		int overflowCount = 0;
+		int endOfBatchCount = 0;
+		int spriteCount = 0;
+	};
+
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context, int maxSpriteCount = 4096);
 
 	void Begin(const Camera2D& camera, BlendMode mode = BlendMode::Alpha);
@@ -38,13 +47,9 @@ public:
 	void Draw(const Texture& texture, const SpriteDesc& desc);
 	void End();
 
-	void ResetStats();
-
-	int GetDrawCallCount() const { return m_drawCallCount; }
-	int GetTextureSwitchCount() const { return m_textureSwitchCount; }
-	int GetOverflowCount() const { return m_overflowCount; }
-	int GetEndOfBatchCount() const { return m_endOfBatchCount; }
-	int GetSpriteCount() const { return m_spriteCount; }
+	const Stats& GetStats() const { return m_stats; }
+	//드로우콜 관련 리셋
+	void ResetStats() { m_stats = {};}
 
 private:
 	template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -63,6 +68,8 @@ private:
 
 	Shader m_shader;
 
+	Stats m_stats;
+
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
 	ComPtr<ID3D11Buffer> m_indexBuffer;
 	ComPtr<ID3D11Buffer> m_cameraCB;
@@ -76,11 +83,11 @@ private:
 	int m_maxVertexCount = 0;
 
 	//드로우 콜 관련 변수
-	int m_drawCallCount = 0;
-	int m_textureSwitchCount = 0;
-	int m_overflowCount = 0;
-	int m_endOfBatchCount = 0;
-	int m_spriteCount = 0;
+	//int m_drawCallCount = 0;
+	//int m_textureSwitchCount = 0;
+	//int m_overflowCount = 0;
+	//int m_endOfBatchCount = 0;
+	//int m_spriteCount = 0;
 
 	static constexpr float kBlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
