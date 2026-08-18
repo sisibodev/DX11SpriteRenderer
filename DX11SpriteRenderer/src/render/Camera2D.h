@@ -4,6 +4,15 @@
 class Camera2D
 {
 public:
+	struct Bounds
+	{
+		float left = 0.0f;
+		float top = 0.0f;
+		float right = 0.0f;
+		float bottom = 0.0f;
+	};
+
+	Bounds GetVisibleBounds() const;
 	void SetViewportSize(int width, int height);
 	void SetPosition(float x, float y);
 

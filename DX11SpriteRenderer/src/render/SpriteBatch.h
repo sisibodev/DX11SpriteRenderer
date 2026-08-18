@@ -20,6 +20,11 @@ enum class BlendMode {
 class SpriteBatch
 {
 public:
+	SpriteBatch() = default;
+	//복사 금지, 대입을 사용할 경우 발생할 수 있는 에러 미연에 방지
+	SpriteBatch(const SpriteBatch&) = delete;
+	SpriteBatch& operator=(const SpriteBatch&) = delete;
+
 	struct SpriteDesc
 	{
 		float x = 0.0f, y = 0.0f;

@@ -5,6 +5,11 @@
 class Shader
 {
 public:
+	Shader() = default;
+	//복사 금지, 대입을 사용할 경우 발생할 수 있는 에러 미연에 방지
+	Shader(const Shader&) = delete;
+	Shader& operator=(const Shader&) = delete;
+
 	bool Load(ID3D11Device* device,
 		const wchar_t* vsPath,
 		const wchar_t* psPath,

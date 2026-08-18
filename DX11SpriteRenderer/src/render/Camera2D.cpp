@@ -2,6 +2,12 @@
 
 using namespace DirectX;
 
+Camera2D::Bounds Camera2D::GetVisibleBounds() const
+{
+	//left, top, right, bottom 순서
+	return { m_posX, m_posY, m_posX + m_viewWidth, m_posY + m_viewHeight };
+}
+
 void Camera2D::SetViewportSize(int width, int height)
 {
 	m_viewWidth = static_cast<float>(width);
