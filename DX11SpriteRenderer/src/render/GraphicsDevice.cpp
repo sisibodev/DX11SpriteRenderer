@@ -18,7 +18,7 @@ bool GraphicsDevice::Initialize(HWND hWnd, int width, int height)
 	scd.SwapEffect			= DXGI_SWAP_EFFECT_DISCARD;
 
 	UINT flags = 0;
-#ifdef _DEBUG
+#if defined(_DEBUG)
 	flags |= D3D11_CREATE_DEVICE_DEBUG;		//실수를 출력창에 알려주는 디버그 레이어
 #endif
 

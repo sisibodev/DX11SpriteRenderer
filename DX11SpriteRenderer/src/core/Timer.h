@@ -6,6 +6,7 @@ public:
 	void Reset();
 	void Tick();
 	float GetDeltaTime() const { return m_deltaTime; }
+	float GetRawDeltaTime() const { return m_rawDeltaTime; }
 	float GetTotalTime() const;
 
 private:
@@ -13,6 +14,7 @@ private:
 	long long m_lastTime = 0;
 	long long m_baseTime = 0;
 	float m_deltaTime = 0.0f;
+	float m_rawDeltaTime = 0.0f;
 
 	static constexpr float kMaxDeltaTime = 0.1f;
 };

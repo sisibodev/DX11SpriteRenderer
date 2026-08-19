@@ -46,11 +46,11 @@ void App::Run()
 		m_timer.Tick();
 
 		const float dt = m_timer.GetDeltaTime();
-
+		
 		ProcessInput(dt);
 		Update(dt);
 		Render();
-		UpdateTitle(dt);
+		UpdateTitle(m_timer.GetRawDeltaTime());
 	}
 }
 
@@ -84,12 +84,13 @@ void App::UpdateTitle(float dt)
 
 		wchar_t buf[256];
 
-		swprintf_s(buf, L"D3D11 Sprite Renderer | %s | %.2f ms (%.0f fps) | 엔티티 %d | 배칭 %s | 정렬 %s | 컬링 %s",
+		swprintf_s(buf, L"D3D11 Sprite Renderer | %s | %.2f ms (%.0f fps) | 엔티티 %d | 배칭 %s | 정렬 %s | 컬링 %s | VSync %s",
 			GetDrawCallInfo().c_str(),
 			avgMs, fps, static_cast<int>(m_entities.size()),
 			m_useBatching ? L"ON" : L"OFF",
 			m_sortByTexture ? L"ON" : L"OFF",
-			m_cullOffScreen ? L"ON" : L"OFF");
+			m_cullOffScreen ? L"ON" : L"OFF",
+			m_vsync ? L"ON" : L"OFF");
 
 		SetWindowTextW(m_window.GetHandle(), buf);
 
@@ -288,7 +289,12 @@ void App::DrawEntities()
 	{
 		std::sort(m_drawOrder.begin(), m_drawOrder.end(), [this](int a, int b)
 			{
-				return m_entities[a].textureIndex < m_entities[b].textureIndex;
+				const int ta = m_entities[a].textureIndex;
+				const int tb = m_entities[b].textureIndex;
+				//다르면 인덱스 순으로 정렬
+				if (ta != tb) return ta < tb;
+				//같으면 배열 순서로 정렬
+				return a < b;
 			});
 	}
 
