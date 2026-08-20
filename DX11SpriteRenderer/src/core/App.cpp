@@ -113,10 +113,10 @@ void App::DrawScene()
 	//드로우 콜 정보 초기화
 	m_batch->ResetStats();
 
-	DrawAtlasDemo();
+	//DrawAtlasDemo();
 	//DrawBlendDemo();
 	//DrawAniDemo();
-	//DrawEntities();
+	DrawEntities();
 }
 
 bool App::IsKeyPressed(int vk)
