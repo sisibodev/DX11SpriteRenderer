@@ -262,6 +262,10 @@ void App::SpawnEntities(int count)
 
 void App::DrawEntities()
 {
+	//컬링 루프와 std::sort를 대체
+	m_buckets[0].clear();
+	m_buckets[1].clear();
+
 	const Camera2D::Bounds view = m_camera.GetVisibleBounds();
 	const float half = kEntitySize * 0.5f;
 
@@ -281,21 +285,25 @@ void App::DrawEntities()
 			if (e.y - half > view.bottom) continue;
 		}
 
-		m_drawOrder.push_back(i);
+		//정렬 시 버킷으로 나눠서 배치
+		if (m_sortByTexture)
+		{
+			m_buckets[e.textureIndex].push_back(i);
+		}
+		else
+		{
+			m_drawOrder.push_back(i);
+		}
 	}
 
 	//정렬
 	if (m_sortByTexture)
 	{
-		std::sort(m_drawOrder.begin(), m_drawOrder.end(), [this](int a, int b)
-			{
-				const int ta = m_entities[a].textureIndex;
-				const int tb = m_entities[b].textureIndex;
-				//다르면 인덱스 순으로 정렬
-				if (ta != tb) return ta < tb;
-				//같으면 배열 순서로 정렬
-				return a < b;
-			});
+		m_drawOrder.clear();
+		for (int i = 0; i < 2; ++i)
+		{
+			m_drawOrder.insert(m_drawOrder.end(), m_buckets[i].begin(), m_buckets[i].end());
+		}
 	}
 
 	//그리기

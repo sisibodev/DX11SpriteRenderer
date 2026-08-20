@@ -56,6 +56,7 @@ private:
 
 	std::vector<Entity> m_entities;
 	std::vector<int> m_drawOrder;
+	std::vector<int> m_buckets[2];
 	
 	float m_titleAccum = 0.0f;
 	int m_titleFrames = 0;
